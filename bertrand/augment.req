@@ -1,0 +1,46 @@
+# Implementation of term-rewriting semantics.
+
+# An expr is one of the following:
+#	labeled(var, opterm)
+#	var(var)
+#	constant(number)
+#	opterm(op, expr*)
+
+# Namespaces
+lookup(?var, phi) == error('Unbound variable: ' & symbol2string(?var))
+lookup(?var, bind(?bound, ?value, ?namespace)) == 
+  if ?var = ?bound then ?value else lookup(?var, ?namespace)
+
+# Instantiation
+# I assume all variables in the expr are bound in ?namespace.
+instantiate(?namespace, constant(?x)) == constant(?x)
+instantiate(?namespace, var(?var)) == lookup(?var, ?namespace)
+instantiate(?namespace, opterm(?op, ?exprs)) == 
+  opterm(?op, map(instantiate, ?exprs))
+instantiate(?namespace, labeled(?var, ?opterm)) == 
+  labeled(?var, instantiate(?namespace, ?opterm))
+
+# A rule is a pair
+#	rule(head, body)
+# A program is a list of rules.
+
+# The semantic function:
+fully_reduce(?rules, ?expr) == 
+  (if ?redexes = nil 
+   then ?expr 
+   else fully_reduce(?rules, reduce(?expr, hd(?redexes))))
+  with ?redexes = redexes(?rules, ?expr)
+  
+reduce(?rules, ?expr, redex(?subexpr, ?param_env, ?body)) ==
+  positional_substitution(?subexpr, instantiate(?param_env, ?body), ?expr)
+
+redexes(?rules, ...) == ...
+
+positional_substitution(?old, ?new, ?expr) == ...
+
+
+
+# Miscellany
+
+hd(?h::?t) == ?h
+tl(?h::?t) == ?t

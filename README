@@ -1,0 +1,39 @@
+	 req - a programmable calculator using rewrite rules
+
+To build: 	make
+To run: 	cp reqrc ~/.reqrc; ./req
+
+Example runs:
+
+ $ req 2+3
+ 5
+ $ req
+ > sphere_area(?r) == 4 * pi * ?r^2
+ ok
+ > sphere_area(R_earth) / (1 mile)^2   # Earth's surface area in square miles
+ 197060797.4
+ > 
+
+This was my first largeish C program, written in the late 1980s. I do
+use it all the time as a calculator (it's handy with the physical
+constants and units), but I don't maintain or support it.
+
+
+Notable files:
+
+ Notes		The beginnings of a tutorial with some sample code
+
+ test/          Directory with more sample code
+
+ req.c		Main program
+
+ reqrc		Sample .reqrc file
+
+ bertrand/      Lame-o beginnings of an augmented term rewriter based on 
+		Wm Leler's book _Constraint Programming Languages_ -- 
+		I haven't looked at it in a long time and it probably
+		doesn't work.
+
+Thanks to Steve Jenson for getting it to build on OS X.
+
+Darius Bacon <darius@wry.me>

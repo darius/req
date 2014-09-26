@@ -1,0 +1,14 @@
+not not ?a == ?a
+# not (?a and ?b) == not ?a or not ?b
+?a or ?b == not (not ?a and not ?b)
+not true == false
+not false == true
+true and ?a == ?a
+false and ?a == false
+?a and true == ?a
+?a and false == false
+?a and not ?a == false
+
+# ?p -> ?c : ?a == (?p -> ?c) and ((not ?p) -> ?a)
+?x -> ?y == not ?x or ?y
+trace((p -> c) and ((not p) -> a))

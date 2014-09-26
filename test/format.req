@@ -1,0 +1,66 @@
+###### Format expr for output: #############################
+
+$format(?x) == $format(?x, 0)
+
+$format(?n?number, ?p) == number2string(?n)
+$format(?s?string, ?p) == '"' & ?s & '"'
+$format(?f?file, ?p) == '[file]'
+$format(?s?symbol, ?p) == symbol2string(?s)
+$format(?v?var, ?p) ==
+  $format_variable(symbol2string(varName(?v)), varRestric(?v))
+$format_variable(?name, ?restric) == 
+  '?' & ?name & '?' & symbol2string(?restric)
+$format_variable(?name, none) == '?' & ?name
+
+$format_rator(?rator) == $format(?rator, 10000)
+
+$format(?f(), ?p) == $format_rator(?f) & '()'
+
+$enclose(?inner, ?outer, ?s) == 
+  if ?inner < ?outer then '(' & ?s & ')' else ?s
+
+$format(?f(?x), ?p) == 
+  if 0 < prefixPrecedence(?f) 
+  then $enclose(prefixPrecedence(?f), ?p, 
+                $format_rator(?f) & ' ' & $format(?x, prefixPrecedence(?f)))
+  else if 0 < postfixPrecedence(?f)
+       then $enclose(postfixPrecedence(?f), ?p,
+                     $format(?x, postfixPrecedence(?f)) & ' ' & $format_rator(?f))
+       else $format_app(?f, ?x::nil)
+
+$format(?f(?x, ?y), ?p) == 
+  if 0 < infixPrecedence(?f)
+  then $enclose(infixPrecedence(?f), ?p,
+                $format(?x, leftPrecedence(?f)) & ' ' 
+                  & $format_rator(?f) & ' '
+                  & $format(?y, rightPrecedence(?f)))
+  else $format_app(?f, ?x::?y::nil)
+  
+$format(?f(?x, ?y, ?z), ?p) == $format_app(?f, ?x::?y::?z::nil)
+$format(?f(?w, ?x, ?y, ?z), ?p) == $format_app(?f, ?w::?x::?y::?z::nil)
+$format(?f(?v, ?w, ?x, ?y, ?z), ?p) == $format_app(?f, ?v::?w::?x::?y::?z::nil)
+$format(?f(?u, ?v, ?w, ?x, ?y, ?z), ?p) == $format_app(?f, ?u::?v::?w::?x::?y::?z::nil)
+
+$format_app(?rator, ?rands) == 
+  $format_rator(?rator) & '(' & $format_rands(?rands) & ')'
+
+$format_rands(nil) == ''
+$format_rands(?first::?rest) == 
+  $format(?first, 0) & ', ' & $format_rands(?rest)
+$format_rands(?rand::nil) == $format(?rand, 0)
+
+infixPrecedence(?x) == 0
+prefixPrecedence(?x) == 0
+postfixPrecedence(?x) == 0
+
+leftPrecedence(?x) == infixPrecedence(?x)
+rightPrecedence(?x) == infixPrecedence(?x) + 1
+  
+prefixPrecedence(~) == 3000
+postfixPrecedence(!) == 3000
+infixPrecedence(-) == 1400
+infixPrecedence(/) == 1600
+infixPrecedence(^) == 1800
+leftPrecedence(^) == 1801
+rightPrecedence(^) == 1800
+

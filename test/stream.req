@@ -1,0 +1,22 @@
+# Streams
+
+null(nil) == true
+null(?first::?rest) == false
+
+head(?first::?rest) == ?first
+tail(?first::?rest) == force(?rest)
+
+first_n(?n, ?stream) == force($first_n(?n, ?stream))
+force($first_n(?n, ?stream)) == head(?stream) :: $first_n(?n-1, tail(?stream))
+force($first_n(0, ?stream)) == nil
+
+stream2list(?stream) ==
+  if null(?stream)
+  then nil
+  else head(?stream) :: stream2list(tail(?stream))
+
+# Random numbers
+
+random_stream(?seed) == force($random_stream(?seed))
+force($random_stream(?seed)) == ?seed :: $random_stream(random_update(?seed))
+

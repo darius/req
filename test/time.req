@@ -1,0 +1,19 @@
+# Simple time calculations
+
+declareInfixRL(:, 4000)
+declarePostfix(am, 3000)
+declarePostfix(pm, 3000)
+declarePostfix(in_minutes, 3000)
+declarePostfix(in_seconds, 3000)
+
+?units:?sixtieths == ?units + ?sixtieths / 60
+
+?time am == ?time
+?time pm == ?time + 12:00
+
+?hours in_minutes == ?hours * 60
+?hours in_seconds == ?hours in_minutes * 60
+
+# A timecard entry
+# e.g. day(9, 12:30, 1:30, 6) reduces to 8 (hours)
+day(?from1, ?to1, ?from2, ?to2) == ?to1 - ?from1 + ?to2 - ?from2

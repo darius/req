@@ -1,0 +1,50 @@
+experiment == 
+  plus_or_minus(mean(?d), expected_error(?d))
+   with ?d -> depths(5, nil)
+
+# Binary search trees
+
+insert(?x, nil) == bst(?x, nil, nil)
+insert(?x, bst(?node, ?left, ?right)) ==
+  if ?x < ?node
+  then bst(?node, insert(?x, ?left), ?right)
+  else bst(?node, ?left, insert(?x, ?right))
+
+s_insert(?x, ?bst) == bst(?x, ?L, ?R) with pair(?L, ?R) -> split(?x, ?bst)
+
+split(?x, nil) == pair(nil, nil)
+split(?x, bst(?val, ?L, ?R)) == 
+  if ?x < ?val
+  then (pair(?LL, bst(?val, ?LR, ?R)) with pair(?LL, ?LR) -> split(?x, ?L))
+  else (pair(bst(?val, ?L, ?RL), ?RR) with pair(?RL, ?RR) -> split(?x, ?R))
+  
+depth(nil) == 0
+depth(bst(?node, ?left, ?right)) ==
+  1 + max(depth(?left), depth(?right))
+
+random_bst(?n, ?bst) == random_bst(?n-1, s_insert(random(), ?bst))
+random_bst(0, ?bst) == ?bst
+
+depths(?n, ?list) == depths(?n-1, depth(random_bst(100, nil)) :: ?list)
+depths(0, ?list) == ?list
+
+# Statistics
+
+mean(?list) == sum(?list) / length(?list)
+variance(?list) == mean(map(square, ?list)) - square(mean(?list))
+expected_error(?list) == sqrt(variance(?list) / length(?list))
+
+sum(nil) == 0
+sum(?h::?t) == ?h + sum(?t)
+
+# misc
+
+map(?f, nil) == nil
+map(?f, ?h::?t) == ?f(?h) :: map(?f, ?t)
+
+length(nil) == 0
+length(?h::?t) == 1 + length(?t)
+
+square(?x) == ?x * ?x
+
+max(?x, ?y) == if ?x < ?y then ?y else ?x

@@ -1,0 +1,167 @@
+declareInfix(==, 50)
+declareInfix(:=, 50)
+declareInfixRL(with, 100)
+declareInfix(->, 110)
+declarePrefix(if, 199)
+declareInfix(then, 200)
+declareInfix(else, 202)
+declareInfix(;, 320)
+declareInfixRL(::, 700)
+declareInfix(or, 800)
+declareInfix(and, 900)
+declarePrefix(not, 1000)
+declareInfix(<, 1200)
+declareInfix(<=, 1200)
+declareInfix(=, 1200)
+declareInfix(!=, 1200)
+declareInfix(>=, 1200)
+declareInfix(>, 1200)
+declareInfix(eq, 1200)
+declareInfix(&, 1400)
+declareInfix(+, 1400)
+declareInfix(-, 1400)
+declarePrefix(~, 3000)
+declareInfix(*, 1600)
+declareInfix(/, 1600)
+declareInfix(div, 1600)
+declareInfix(mod, 1600)
+declareInfixRL(^, 1800)
+declareInfix(sub, 2000)
+declarePostfix(!, 3000)
+
+# Misc useful definitions
+
+max(?x, ?y) == if ?x < ?y then ?y else ?x
+min(?x, ?y) == if ?x > ?y then ?y else ?x
+
+length(nil) == 0
+length(?head::?tail) == 1 + length(?tail)
+
+map(?f, nil) == nil
+map(?f, ?head::?tail) == ?f(?head) :: map(?f, ?tail)
+
+letters == 'abcdefghijklmnopqrstuvwxyz'
+LETTERS == 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+
+toupper(?s?string) == translit(letters, LETTERS, ?s)
+tolower(?s?string) == translit(LETTERS, letters, ?s)
+
+pi := 4 * arctan(1)
+
+?n?number ! == ?n * (?n-1)!
+        0 ! == 1
+
+################ Unit calculator ###############
+
+declareInfix(in, 2000)
+?a in ?unit == ?a / (?unit(1))
+
+declareUnit(?unit) == declarePostfix(?unit, 2900)
+
+# prefixes
+declareUnit(peta)	?n peta  == ?n * 10 ^ 15
+declareUnit(tera)	?n tera  == ?n * 10 ^ 12
+declareUnit(giga)	?n giga  == ?n * 10 ^ 9
+declareUnit(mega)	?n mega  == ?n * 10 ^ 6
+declareUnit(kilo)	?n kilo  == ?n * 10 ^ 3
+declareUnit(deci)	?n deci  == ?n * 10 ^ ~1
+declareUnit(centi)	?n centi == ?n * 10 ^ ~2
+declareUnit(milli)	?n milli == ?n * 10 ^ ~3
+declareUnit(micro)	?n micro == ?n * 10 ^ ~6
+declareUnit(nano)	?n nano  == ?n * 10 ^ ~9
+declareUnit(pico)	?n pico  == ?n * 10 ^ ~12
+declareUnit(femto)	?n femto == ?n * 10 ^ ~15
+declareUnit(atto)	?n atto  == ?n * 10 ^ ~18
+
+# length
+declareUnit(meter)	?n meter == ?n		# ref unit for length
+declareUnit(km)		?n km   == ?n kilo meter
+declareUnit(cm)		?n cm   == ?n centi meter
+declareUnit(mm)		?n mm   == ?n milli meter
+declareUnit(micron)	?n micron == ?n micro meter
+declareUnit(nm)		?n nm   == ?n nano meter
+declareUnit(angstrom)	?n nm   == ?n * 10 ^ ~10 meter
+declareUnit(inch)	?n inch == ?n * 2.54 cm
+declareUnit(foot)	?n foot == ?n * 12 inch
+declareUnit(yard)	?n yard == ?n * 3 foot
+declareUnit(mile)	?n mile == ?n * 5280 foot
+declareUnit(AU)		?n AU   == ?n * 1.495 * 10^11 meter  # astronomical unit
+declareUnit(parsec)	?n parsec == ?n * 3.084 * 10^16 meter
+
+# time
+declareUnit(second)	?n second == ?n		# ref for time
+declareUnit(sec)	?n sec    == ?n second
+declareUnit(msec)	?n msec    == ?n milli second
+declareUnit(nsec)	?n nsec    == ?n nano second
+declareUnit(minute)	?n minute == ?n * 60 second
+declareUnit(hour)	?n hour   == ?n * 60 minute
+declareUnit(day)	?n day    == ?n * 24 hour
+declareUnit(year)	?n year   == ?n * 365.2422 day
+
+# mass
+declareUnit(kg)		?n kg    == ?n  	# ref for mass
+declareUnit(gram)	?n gram  == (?n / 1000) kg
+declareUnit(tonne) 	?n tonne == ?n kilo kg
+declareUnit(pound) 	?n pound == (?n / 2.22) kg
+declareUnit(lb) 	?n lb    == ?n pound
+declareUnit(ton) 	?n ton   == ?n * 2000 pound  # I think...
+declareUnit(ounce) 	?n ounce == (?n / 16) pound  # I guess...
+declareUnit(oz) 	?n oz    == ?n ounce
+
+# angle
+declareUnit(radian)     ?n radian == ?n
+declareUnit(degree)     ?n degree == (pi/180 * ?n) radian
+
+# Combinations
+declareUnit(newton) 	?n newton == ?n
+declareUnit(joule) 	?n joule  == ?n
+declareUnit(watt) 	?n watt   == ?n
+
+declareUnit(dyne)       ?n dyne   == ?n * (1 gram * 1 cm / (1 sec)^2)
+declareUnit(erg) 	?n erg    == ?n * (1 gram * ((1 cm) / (1 sec))^2)
+
+declareUnit(eV) 	?n eV     == ?n * 1.602 * 10^~19 joule
+
+declareUnit(acre)       ?n acre   == ?n * 4840 * (1 yard)^2
+declareUnit(bar)        ?n bar    == ?n * 10^6 dyne / (1 cm)^2
+declareUnit(atmosphere) ?n atmosphere == ?n * 101325
+
+
+# Temperature
+# Not really units in the same sense -- not linearly related.
+
+# declareUnit(kelvin) 	?n kelvin == ?n * ...
+
+declareUnit(deg_K)	?k deg_K    == ?k
+declareUnit(deg_C)	?c deg_C    == ?c + 273.15
+declareUnit(deg_F)	?f deg_F    == ((?f - 32) * 5/9) deg_C
+declareUnit(in_deg_K)   ?k in_deg_K == ?k
+declareUnit(in_deg_C)	?k in_deg_C == ?k - 273.15
+declareUnit(in_deg_F)	?k in_deg_F == ?k in_deg_C * 9/5 + 32
+
+# physical constants
+c    := 299792458 meter / 1 second
+G    := 6.672 * 10 ^ ~11 newton * (1 meter)^2 / (1 kg)^2
+hbar := 1.054573 * 10 ^ ~34 joule * 1 second
+h    := hbar * 2 * pi
+
+k_B      := 1.3806 * 10 ^ ~23 joule  # per degree K
+
+amu      := 1.6605 * 10 ^ ~27 kg     # atomic mass unit
+avogadro := 6.0221 * 10^23         # per mole
+
+M_proton   := 1.6726 * 10 ^ ~27 kg
+M_electron := 9.1094 * 10 ^ ~31 kg
+
+alpha_electron := 1/137.036    # fine structure constant
+
+R_bohr := 0.52918 angstrom
+
+
+# local constants
+R_earth := 3960 mile
+M_earth := 5.98 * 10^24 kg
+R_sun   := 6.953 * 10^8 meter
+M_sun   := 1.983 * 10^30 kg
+
+g_earth := 9.80665 meter / (1 sec)^2

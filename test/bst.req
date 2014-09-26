@@ -1,0 +1,46 @@
+# This is for a friend's data structures class assignment:
+# generate 50 random binary search trees of 100 keys each
+# and compute their average depth.
+# Those who are new to functional programming should find this 
+# simple example instructive.
+
+experiment == estimated_mean(repeat(trial, 50))
+
+trial() == depth(random_bst(100))
+
+random_bst(?n) == insert(random(), random_bst(?n-1))
+random_bst(0) == nil
+
+# Binary search trees
+
+insert(?x, nil) == bst(nil, ?x, nil)
+insert(?x, bst(?L, ?value, ?R)) ==
+  if ?x < ?value
+  then bst(insert(?x, ?L), ?value, ?R)
+  else bst(?L, ?value, insert(?x, ?R))
+
+depth(nil) == 0
+depth(bst(?L, ?value, ?R)) ==
+  1 + max(depth(?L), depth(?R))
+
+# Statistics
+# I have a feeling these formulas aren't quite kosher.
+
+declareInfix(+-, 1000)
+
+estimated_mean(?trials) == mean(?trials) +- expected_error(?trials)
+
+mean(?list) == sum(?list) / length(?list)
+variance(?list) == mean(map(square, ?list)) - square(mean(?list))
+expected_error(?list) == sqrt(variance(?list) / length(?list))
+
+# Misc
+
+repeat(?generator, ?n) == ?generator() :: repeat(?generator, ?n-1)
+repeat(?generator, 0) == nil
+
+sum(nil) == 0
+sum(?head::?tail) == ?head + sum(?tail)
+
+square(?x) == ?x * ?x
+

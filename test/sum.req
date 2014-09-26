@@ -1,0 +1,48 @@
+load('lambda.req')
+load('stream.req')
+
+pi_estimate(?tolerance, ?max_steps) == 
+  4 * integral(x => sqrt(1 - square(x)), 0, 1, ?tolerance, ?max_steps)
+
+square(?x) == ?x * ?x
+
+# Derivatives
+
+deriv(?fn, ?dx) ==
+  x => (?fn(x + ?dx) - ?fn(x - ?dx)) / (2 * ?dx)
+
+# Summation
+
+sum(?f, ?lo, ?hi) == sum(?f, ?lo, ?hi, 1)
+sum(?f, ?lo, ?hi, ?step) == accumulate_sum(0, ?f, ?lo, ?hi, ?step)
+accumulate_sum(?sum, ?f, ?lo, ?hi, ?step) == 
+  if ?lo <= ?hi		# I hope this doesn't fall prey to numerical instability
+  then accumulate_sum(?f(?lo) + ?sum, ?f, ?lo + ?step, ?hi, ?step)
+  else ?sum
+
+# Integration
+
+integral(?f, ?lo, ?hi, ?tolerance, ?n) == 
+  stream_limit(trapezoid_sums(?f, ?lo, ?hi), ?tolerance, ?n)
+
+trapezoid_sum(?f, ?lo, ?hi, ?num_intervals) == 
+  ?h * (?f(?lo) / 2 + sum(?f, ?lo + ?h, ?hi - ?h, ?h) + ?f(?hi) / 2)
+    with ?h -> (?hi - ?lo) / ?num_intervals
+
+trapezoid_sums(?f, ?lo, ?hi) == 
+  force($trapezoid_sums(?f, ?lo, ?hi, 1, trapezoid_sum(?f, ?lo, ?hi, 1)))
+
+force($trapezoid_sums(?f, ?lo, ?hi, ?n, ?sum)) == 
+  ?sum :: $trapezoid_sums(?f, ?lo, ?hi, 2 * ?n, ?new_sum)
+    with ?new_sum -> (?sum + ?h * sum(?f, ?lo + ?h/2, ?hi - ?h/2, ?h)) / 2
+	  with ?h -> (?hi - ?lo) / ?n
+
+stream_limit(?stream, ?tolerance, ?n) == 
+  (if close_enough(head(?stream), head(?tail), ?tolerance)
+   then head(?tail)
+   else stream_limit(?tail, ?tolerance, ?n-1)
+  ) with ?tail -> tail(?stream)		# evaluate only once for efficiency
+stream_limit(?stream, ?tolerance, 0) == head(?stream)
+
+close_enough(?x, ?y, ?tolerance) == 
+  abs(?x - ?y) <= ?tolerance * ((abs(?x) + abs(?y)) / 2 + 1)

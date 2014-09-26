@@ -1,0 +1,21 @@
+do(?m, ?n) == repeatedly_kill_mth(?m, ?n, ?n-1, enumerate_interval(1, ?n))
+
+repeatedly_kill_mth(?m, ?n, ?i, ?people) == 
+  (?deader :: repeatedly_kill_mth(?m, ?n-1, ?new_i, ?survivors))
+  with tuple(?deader, ?new_i, ?survivors) -> kill_mth(?m, ?n, ?i, ?people)
+repeatedly_kill_mth(?m, 0, ?i, nil) == nil
+
+kill_mth(?m, ?n, ?i, ?people) ==
+  tuple(list_ref(?people, ?d), ?d - 1, remove_nth(?people, ?d))
+  with ?d -> (?i + ?m) mod ?n
+
+enumerate_interval(?lo, ?hi) == 
+  if ?hi < ?lo
+  then nil
+  else ?lo :: enumerate_interval(?lo+1, ?hi)
+
+list_ref(?h::?t, ?n) == list_ref(?t, ?n-1)
+list_ref(?h::?t, 0) == ?h
+
+remove_nth(?h::?t, ?n) == ?h :: remove_nth(?t, ?n-1)
+remove_nth(?h::?t, 0) == ?t

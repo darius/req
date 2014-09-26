@@ -1,0 +1,3 @@
+loop(?n) == loop(?n - 1)
+loop(0) == 1
+loop(100000)

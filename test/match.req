@@ -1,0 +1,23 @@
+# String pattern matching
+
+match(?pat, ?string?string) == match_tails(?pat, ?string, 0)
+
+match_tails(?pat, ?string, ?i) == 
+  if length(?string) <= ?i
+  then nil		# unless ?pat is empty...
+  else if anchored_match(?pat, ?string, ?i) == fail
+       then match_tails(?pat, ?string, ?i+1)
+       else ?i :: match_tails(?pat, ?string, ?i+1)	# could include range info
+
+anchored_match(null, ?string, ?i) == fail
+anchored_match(empty, ?string, ?i) == ?i
+anchored_match(lit(?c), ?string, ?i) == 	# could have multi-char literals
+  if ?string sub 0 = ?c then ?i+1 else fail
+anchored_match(cat(?p1, ?p2), ?string, ?i) ==
+  (if ?j = fail then fail
+   else anchored_match(?p2, ?string, ?j)
+  ) with ?j -> anchored_match(?p1, ?string, ?i)
+anchored_match(alt(?p1, ?p2), ?string, ?i) ==
+  (if ?j = fail then anchored_match(?p2, ?string, ?i) else ?j)
+  with ?j -> anchored_match(?p1, ?string, ?i)		# no backtrack capability!
+

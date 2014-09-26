@@ -1,0 +1,41 @@
+# Binary search trees
+
+insert(?x, nil) == bst(?x, nil, nil)
+insert(?x, bst(?node, ?left, ?right)) ==
+  if ?x < ?node
+  then bst(?node, insert(?x, ?left), ?right)
+  else bst(?node, ?left, insert(?x, ?right))
+
+depth(nil) == 0
+depth(bst(?node, ?left, ?right)) ==
+  1 + max(depth(?left), depth(?right))
+
+# Streams
+
+null(nil) == true
+null(?first::?rest) == false
+
+head(?first::?rest) == ?first
+tail(?first::?rest) == force(?rest)
+
+force(delay(?x)) == ?x
+
+first_n(?n, ?stream) == force($first_n(?n, ?stream))
+force($first_n(?n, ?stream)) == head(?stream) :: $first_n(?n-1, tail(?stream))
+force($first_n(0, ?stream)) == nil
+
+stream2list(?stream) ==
+  if null(?stream)
+  then nil
+  else head(?stream) :: stream2list(tail(?stream))
+
+# Random numbers
+
+random_stream(?seed) == force($random_stream(?seed))
+force($random_stream(?seed)) == ?seed :: $random_stream(random_update(?seed))
+
+# misc
+max(?x, ?y) == if ?x < ?y then ?y else ?x
+
+true == 1
+false == 0

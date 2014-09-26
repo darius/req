@@ -1,0 +1,121 @@
+# Implementation of term-rewriting semantics.
+
+# Namespaces
+lookup(?var, phi) == error('Unbound variable: ' & symbol2string(?var))
+lookup(?var, bind(?bound, ?value, ?namespace)) == 
+  if ?var = ?bound then ?value else lookup(?var, ?namespace)
+
+# Merge disjoint namespaces
+merge_namespaces(phi, ?namespace) == ?namespace
+merge_namespaces(bind(?var, ?value, ?rest), ?namespace) ==
+  bind(?var, ?value, merge_namespaces(?rest, ?namespace))
+
+# An expr is one of the following:
+#	var(var)
+#	constant(number)
+#	opterm(op, expr*)
+
+# Instantiation
+# I assume all variables in the expr are bound in ?namespace.
+instantiate(?namespace, constant(?x)) == constant(?x)
+instantiate(?namespace, var(?var)) == lookup(?var, ?namespace)
+instantiate(?namespace, opterm(?op, ?exprs)) == 
+  opterm(?op, map(instantiate, ?exprs))
+
+# Subexpressions
+subexpressions(?atom) == nil
+subexpressions(opterm(?op, ?exprs)) == ?exprs
+
+# Positional substitution
+positional_substitution(?old, ?new, ?expr) == 
+  if ?old eq ?expr then ?new else pos_subst(?old, ?new, ?expr)
+pos_subst(?old, ?new, constant(?x)) == constant(?x)
+pos_subst(?old, ?new, var(?var)) == var(?var)
+pos_subst(?old, ?new, opterm(?op, ?exprs)) ==
+  opterm(?op, map_pos_subst(?old, ?new, ?exprs))
+map_pos_subst(?old, ?new, nil) == nil
+map_pos_subst(?old, ?new, ?h::?t) == 
+  positional_substitution(?old, ?new, ?h) :: map_pos_subst(?old, ?new, ?t)
+
+# A rule is a pair
+#	rule(head, body)
+head(rule(?head, ?body)) == ?head
+body(rule(?head, ?body)) == ?body
+
+# The semantic function:
+fully_reduce(?rules, ?expr) == 
+  (if ?redexes = nil 
+   then ?expr 
+   else fully_reduce(?rules, reduce(?expr, hd(?redexes)))
+  ) with ?redexes -> redexes(?rules, ?expr)
+  
+reduce(?expr, redex(?subexpr, ?param_env, ?body)) ==
+  positional_substitution(?subexpr, instantiate(?param_env, ?body), ?expr)
+
+redexes(?rules, ?expr) == 
+  append(try_rules(?rules, ?expr), 
+  		 flatmap_redexes(?rules, subexpressions(?expr)))
+flatmap_redexes(?rules, nil) == nil
+flatmap_redexes(?rules, ?expr :: ?rest) == 
+  append(redexes(?rules, ?expr), flatmap_redexes(?rules, ?rest))
+
+try_rules(nil, ?expr) == nil
+try_rules(?rule::?rest, ?expr) == 
+  (if ?redex = failed
+   then try_rules(?rest, ?expr)
+   else ?redex :: try_rules(?rest, ?expr)
+  ) with ?redex -> try_rule(?rule, ?expr)
+  
+try_rule(?rule, ?expr) == 
+  (if ?param_env = no_match
+   then failed
+   else redex(?expr, ?param_env, body(?rule))
+  ) with ?param_env -> match(head(?rule), ?expr)
+
+# Pattern matching:
+# I assume all variables in a pattern are distinct, 
+# and there are no variables in the subject expression.
+
+match(?x, ?y) == no_match
+match(constant(?x), constant(?x)) == phi
+match(var(?var), ?expr) == bind(?var, ?expr, phi)
+match(opterm(?op, ?subpatterns), opterm(?op, ?subexpressions)) ==
+  match_each(?subpatterns, ?subexpressions, phi)
+
+match_each(nil, nil, ?env) == ?env  
+match_each(?pattern::?patterns, nil, ?env) == no_match
+match_each(nil, ?expr::?exprs, ?env) == no_match
+match_each(?pattern::?patterns, ?expr::?exprs, ?env) ==
+  (if ?head_env = no_match
+   then no_match
+   else match_each(?patterns, ?exprs, merge_namespaces(?head_env, ?env))
+  ) with ?head_env -> match(?pattern, ?expr)
+
+# Parsing and unparsing
+
+parse(?x) == constant(?x)
+parse(?s?symbol) == var(?s)
+parse(?op()) == opterm(?op, nil)
+parse(?op(?arg)) == opterm(?op, parse(?arg)::nil)
+parse(?op(?arg1, ?arg2)) == opterm(?op, parse(?arg1)::parse(?arg2)::nil)
+
+unparse(constant(?x)) == ?x
+unparse(var(?s)) == ?s
+unparse(opterm(?op, nil)) == ?op()
+unparse(opterm(?op, ?arg::nil)) == ?op(unparse(?arg))
+unparse(opterm(?op, ?arg1::?arg2::nil)) == ?op(unparse(?arg1), unparse(?arg2))
+
+# Miscellany
+
+hd(?h::?t) == ?h
+tl(?h::?t) == ?t
+
+try(?expr) ==
+  unparse(fully_reduce(?rules, parse(?expr)))
+  with ?rules -> 
+    map(parse_rule,
+		rule(zero() + Y, Y)		# rules for addition in successor rep
+  	 :: rule(s(X) + Y, s(X + Y)) 
+	 :: nil)
+
+parse_rule(rule(?head, ?body)) == rule(parse(?head), parse(?body))

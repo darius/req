@@ -1,0 +1,39 @@
+# Interval arithmetic
+
+# Constructors
+
+declareInfix(--, 3000)
+declareInfix(+-, 3000)
+declareInfix(%%, 3000)
+
+?center +- ?epsilon == (?center - ?epsilon) -- (?center + ?epsilon)
+?center %% ?percent == ?center +- (?center * ?percent / 100)
+
+# Selectors
+
+center(?lo -- ?hi) == (?lo + ?hi) / 2
+width(?lo -- ?hi) == ?hi - ?lo
+percent(?lo -- ?hi) == 100 * width(?lo--?hi) / center(?lo--?hi)
+
+# Operations
+
+(?lo1 -- ?hi1) + (?lo2 -- ?hi2) == (?lo1 + ?lo2) -- (?hi1 + ?hi2)
+(?lo1 -- ?hi1) - (?lo2 -- ?hi2) == (?lo1 - ?lo2) -- (?hi1 - ?hi2)
+
+~(?lo -- ?hi) == (~?hi) -- (~?lo)
+
+(?lo1 -- ?hi1) * (?lo2 -- ?hi2) == 
+   min_and_max(?lo1 * ?lo2, ?lo1 * ?hi2, ?hi1 * ?lo2, ?hi1 * ?hi2)
+   
+?numerator / (?lo -- ?hi) ==
+  if within(0, ?lo -- ?hi)
+  then error('Division by an interval containing zero: ' & unparse(?lo -- ?hi))
+  else ?numerator * ((1 / ?hi) -- (1 / ?lo))
+
+min_and_max(?a, ?b, ?c, ?d) == 
+  min(min(?a, ?b), min(?c, ?d)) -- max(max(?a, ?b), max(?c, ?d))
+  
+min(?a, ?b) == if ?a < ?b then ?a else ?b
+max(?a, ?b) == if ?a < ?b then ?b else ?a
+
+within(?n, ?lo -- ?hi) == ?lo <= ?n and ?n <= ?hi

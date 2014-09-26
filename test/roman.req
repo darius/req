@@ -1,0 +1,20 @@
+# Roman-numeral conversion 
+# - from _Algorithms in Snobol4_ by James F. Gimpel
+
+roman(?n?number) == 
+  if ?n < 10 
+  then oner(?n)
+  else multiply_by_10(roman(?n div 10)) & oner(?n mod 10)
+
+oner(0) == ''
+oner(1) == 'i'
+oner(2) == 'ii'
+oner(3) == 'iii'
+oner(4) == 'iv'
+oner(5) == 'v'
+oner(6) == 'vi'
+oner(7) == 'vii'
+oner(8) == 'viii'
+oner(9) == 'ix'
+
+multiply_by_10(?s?string) == translit('ivxlcdm', 'xlcdm**', ?s)

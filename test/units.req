@@ -1,0 +1,101 @@
+################ Unit calculator ###############
+# Alas, I never seem to use it.  Converting to non-reference
+# units is pretty awkward.
+
+declareInfix(in, 2000)
+?a in ?unit == ?a / (?unit(1))
+
+declareUnit(?unit) == declarePostfix(?unit, 3000)
+
+# prefixes
+declareUnit(peta)	?n peta  == ?n * 10 ^ 15
+declareUnit(tera)	?n tera  == ?n * 10 ^ 12
+declareUnit(giga)	?n giga  == ?n * 10 ^ 9
+declareUnit(mega)	?n mega  == ?n * 10 ^ 6
+declareUnit(kilo)	?n kilo  == ?n * 10 ^ 3
+declareUnit(deci)	?n deci  == ?n * 10 ^ ~1
+declareUnit(centi)	?n centi == ?n * 10 ^ ~2
+declareUnit(milli)	?n milli == ?n * 10 ^ ~3
+declareUnit(micro)	?n micro == ?n * 10 ^ ~6
+declareUnit(nano)	?n nano  == ?n * 10 ^ ~9
+declareUnit(pico)	?n pico  == ?n * 10 ^ ~12
+declareUnit(femto)	?n femto == ?n * 10 ^ ~15
+declareUnit(atto)	?n atto  == ?n * 10 ^ ~18
+
+# length
+declareUnit(meter)	?n meter == ?n		# ref unit for length
+declareUnit(km)		?n km   == ?n kilo meter
+declareUnit(cm)		?n cm   == ?n centi meter
+declareUnit(mm)		?n mm   == ?n milli meter
+declareUnit(micron)	?n micron == ?n micro meter
+declareUnit(nm)		?n nm   == ?n nano meter
+declareUnit(angstrom)	?n nm   == ?n * 10^~10 meter
+declareUnit(inch)	?n inch == ?n * 2.54 cm
+declareUnit(foot)	?n foot == ?n * 12 inch
+declareUnit(yard)	?n yard == ?n * 3 foot
+declareUnit(mile)	?n mile == ?n * 5280 foot
+declareUnit(AU)		?n AU   == ?n * 1.495 * 10^11 meter  # astronomical unit
+declareUnit(parsec)	?n parsec == ?n * 3.084 * 10^16 meter
+
+# time
+declareUnit(second)	?n second == ?n		# ref for time
+declareUnit(sec)	?n sec    == ?n second
+declareUnit(msec)	?n msec    == ?n milli second
+declareUnit(nsec)	?n nsec    == ?n nano second
+declareUnit(minute)	?n minute == ?n * 60 second
+declareUnit(hour)	?n hour   == ?n * 60 minute
+declareUnit(day)	?n day    == ?n * 24 hour
+declareUnit(year)	?n year   == ?n * 365.2422 day
+
+# mass
+declareUnit(kg)		?n kg    == ?n  	# ref for mass
+declareUnit(gram)	?n gram  == (?n / 1000) kg
+declareUnit(tonne) 	?n tonne == ?n kilo kg
+declareUnit(pound) 	?n pound == (?n / 2.22) kg
+declareUnit(lb) 	?n lb    == ?n pound
+declareUnit(ton) 	?n ton   == ?n * 2000 pound  # I think...
+declareUnit(ounce) 	?n ounce == (?n / 16) pound  # I guess...
+declareUnit(oz) 	?n oz    == ?n ounce
+
+# Combinations
+declareUnit(newton) 	?n newton == ?n
+declareUnit(joule) 	?n joule  == ?n
+declareUnit(watt) 	?n watt   == ?n
+declareUnit(erg) 	?n erg    == ?n joule / (1 gram * ((1 cm) / (1 sec))^2)
+declareUnit(eV) 	?n eV     == ?n * ...
+
+# Temperature
+# Not really units in the same sense -- not linearly related.
+
+declareUnit(kelvin) 	?n kelvin == ?n * ...
+
+declareUnit(deg_K)	?k deg_K    == ?k
+declareUnit(deg_C)	?c deg_C    == ?c - 237    # or whatever it is
+declareUnit(deg_F)	?f deg_F    == (?f - 32) * 5/9 deg_C
+declareUnit(in_deg_C)	?k in_deg_C == ?k + 237
+declareUnit(in_deg_F)	?k in_deg_F == ?k in_deg_C * 9/5 + 32
+
+# physical constants
+c    := 2.99793 * 10^8 meter / 1 second
+G    := 6.67 * 10^~11 newton * (1 meter)^2 / (1 kg)^2
+hbar := 1.05443 * 10^~27 erg * 1 second
+h    := hbar * 2 * pi
+
+k_B      := 1.3824 * 10^~16 erg    # per degree
+avogadro := 6.0249 * 10^23 gram    # per mole
+
+# charge_electron := ...
+# then volts, amps, farads, etc
+
+M_electron := 9.108 * 10^~28 gram
+
+alpha_electron := 1/137.037    # fine structure constant
+
+R_bohr := 0.52917 angstrom
+
+
+# local constants
+R_earth := 3960 mile
+M_earth := ...
+R_sun   := 6.953 * 10^8 meter
+M_sun   := 1.983 * 10^30 kg

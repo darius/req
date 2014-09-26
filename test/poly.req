@@ -1,0 +1,9 @@
+poly(?v, ?terms1) + poly(?v, ?terms2) == poly(?v, ?terms1 + ?terms2)
+nil + ?list == ?list
+?list + nil == ?list
+term(?p, 0)::?terms == ?terms
+(term(?p1, ?c1)::?rest1) + (term(?p2, ?c2)::?rest2) == if ?p1 < ?p2 then term(?p2, ?c2)::((term(?p1, ?c1)::?rest1) + ?rest2) else term(?p1, ?c1)::(?rest1 + (term(?p2, ?c2)::?rest2))
+(term(?p, ?c1)::?rest1) + (term(?p, ?c2)::?rest2) == term(?p, ?c1+?c2)::(?rest1 + ?rest2)
+p1 == poly(x, term(2, 3)::term(0, ~1)::nil)
+p2 == poly(x, term(2, ~3)::term(1, 5)::term(0, ~2)::nil)
+trace(p1 + p2)

@@ -1,0 +1,64 @@
+# Huffman code example
+
+# A code-tree node is either a branch or a leaf
+# branch(frequency, left, right)
+# leaf(frequency, letter)
+
+frequency(branch(?freq, ?L, ?R)) == ?freq
+frequency(leaf(?freq, ?letter)) == ?freq
+
+combine_trees(?L, ?R) == branch(frequency(?L) + frequency(?R), ?L, ?R)
+
+build_huffman_tree(?tree::nil) == ?tree
+build_huffman_tree(?t1::?t2::?rest) == 
+  build_huffman_tree(insert(combine_trees(?t1, ?t2), ?rest))
+
+show_tree(?tree) == walk('', ?tree)
+
+walk(?path, leaf(?freq, ?letter)) == 
+  display(?letter & ' ' & ?path & newline)
+walk(?path, branch(?freq, ?L, ?R)) ==
+  begin(walk(?path & '0', ?L),
+	walk(?path & '1', ?R))
+  
+insert(?tree, nil) == ?tree::nil
+insert(?tree, ?first::?rest) ==
+  if frequency(?tree) <= frequency(?first)
+  then ?tree :: ?first :: ?rest
+  else ?first :: insert(?tree, ?rest)
+
+accumulate(?f, ?id, nil) == ?id
+accumulate(?f, ?id, ?h::?t) == ?f(?h, accumulate(?f, ?id, ?t))
+
+frequencies :=
+  accumulate(insert, nil,
+	leaf(9, 'z') ::
+	leaf(10, 'j') ::
+	leaf(20, 'q') ::
+	leaf(20, 'x') ::
+	leaf(52, 'k') ::
+	leaf(93, 'v') ::
+	leaf(161, 'g') ::
+	leaf(162, 'b') ::
+	leaf(188, 'y') ::
+	leaf(203, 'w') ::
+	leaf(225, 'm') ::
+	leaf(228, 'f') ::
+	leaf(229, 'p') ::
+	leaf(310, 'u') ::
+	leaf(320, 'c') ::
+	leaf(365, 'd') :: 
+	leaf(403, 'l') ::
+	leaf(514, 'h') ::
+	leaf(603, 'r') ::
+	leaf(659, 's') ::
+	leaf(718, 'i') ::
+	leaf(719, 'n') ::
+	leaf(794, 'o') ::
+	leaf(805, 'a') ::
+	leaf(959, 't') ::
+	leaf(1231, 'e') ::
+	nil)
+
+try_it := build_huffman_tree(frequencies)
+show_tree(try_it)

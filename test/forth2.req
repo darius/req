@@ -1,0 +1,52 @@
+declareInfix(;, 1000)		# stack constructor: ?stack; ?top
+
+# Still need defining words & constants & such
+
+# Pure stack operations
+
+dup(?s; ?t) == ?s; ?t; ?t
+drop(?s; ?t) == ?s
+swap(?s; ?n; ?t) == ?s; ?t; ?n
+over(?s; ?n; ?t) == ?s; ?n; ?t; ?n
+rot(?s; ?p; ?n; ?t) == ?s; ?n; ?t; ?p
+
+plus(?s; ?n; ?t) == ?s; (?n + ?t)
+minus(?s; ?n; ?t) == ?s; (?n - ?t)
+times(?s; ?n; ?t) == ?s; (?n * ?t)
+divide(?s; ?n; ?t) == ?s; (?n / ?t)
+quotient(?s; ?n; ?t) == ?s; (?n div ?t)
+remainder(?s; ?n; ?t) == ?s; (?n mod ?t)
+
+# Primitives 
+
+apply_prim(to_r, state(?s; ?t, ?store, ?rs)) == 
+  state(?s, ?store, ?rs; ?t)
+apply_prim(r_from, state(?s, ?store, ?rs; ?trs)) == 
+  state(?s; ?trs, ?store, ?rs)
+
+apply_prim(@, state(?s; ?addr, ?store, ?rs)) == 
+  state(?s; fetch(?addr, ?store), ?store, ?rs)
+apply_prim(!, state(?s; ?x; ?addr, ?store, ?rs)) == 
+  state(?s, update(?store, ?addr, ?x), ?rs)
+
+# The evaluator
+
+eval(final_val, ?state) == ?state
+
+eval(stack_op(?prim, ?k), state(?s, ?store, ?rs)) == 
+  eval(?k, state(?prim(?s), ?store, ?rs))
+eval(prim(?prim, ?k), ?state) == 
+  eval(?k, apply_prim(?prim, ?state))
+eval(literal(?n, ?k), state(?s, ?store, ?rs)) == 
+  eval(?k, state(?s; ?n, ?store, ?rs))
+eval(exit, state(?s, ?store, ?rs; ?k)) ==
+  eval(?k, state(?s, ?store, ?rs))
+eval(call(?word, ?k), state(?s, ?store, ?rs)) ==
+  eval(?word, state(?s, ?store, ?rs; ?k))
+eval(branch(?k1, ?k2), state(?s; ?t, ?store, ?rs)) ==
+  eval(if ?t=0 then ?k2 else ?k1, state(?s, ?store, ?rs))
+
+test == literal(2, literal(2, stack_op(plus, final_val)))
+start_state == state(nil, nil, nil)
+
+try == eval(test, start_state)

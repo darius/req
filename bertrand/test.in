@@ -1,0 +1,2 @@
+load('rewrite.req')
+trace(try(zero() + zero()))

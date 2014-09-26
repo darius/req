@@ -1,0 +1,119 @@
+# Exercise 2.2.7
+
+duple(?n, ?x) == ?x :: duple(?n-1, ?x)
+duple(0, ?x) == nil
+
+invert(nil) == nil
+invert(pair(?x, ?y) :: ?rest) == pair(?y, ?x) :: invert(?rest)
+
+list_index(?s, nil) == ~1
+list_index(?s, ?x::?rest) == list_index_check(list_index(?s, ?rest))
+list_index(?s, ?s::?rest) == 0
+list_index_check(?n) == if ?n = ~1 then ~1 else 1 + ?n
+# list_index_check(?n) == 1 + ?n
+# list_index_check(~1) := ~1	# BUG! lhs gets reduced to list_index_check(0)
+
+ribassoc(?s, ?los, ?v, ?fail_value) == 
+  rib_check_index(list_index(?s, ?los), ?v, ?fail_value)
+rib_check_index(?n, ?v, ?fail_value) == list_ref(?v, ?n)
+rib_check_index(~1, ?v, ?fail_value) == ?fail_value	  # this won't work either
+list_ref(?h::?t, ?n) == list_ref(?t, ?n-1)
+list_ref(?h::?t, 0) == ?h
+
+filter_negative(nil) == nil
+filter_negative(?n::?rest) == 
+  if ?n < 0 then ?n :: filter_negative(?rest) 
+  			else filter_negative(?rest)
+
+product(nil, ?L) == nil
+# product(?h::?t, ?L) == append(mc(?h, ?L), product(?t, ?L))
+# mc(?x, nil) == nil
+# mc(?x, ?h::?t) == pair(?x, ?h) :: mc(?x, ?t)
+# append(nil, ?L) == ?L
+# append(?h::?t, ?L) == ?h :: append(?t, ?L)
+# 
+# append(mc(?x, nil), ?L) == ?L
+# append(mc(?x, ?h::?t), ?L) == pair(?x, ?h) :: append(mc(?x, ?t), ?L)
+# 
+# map_cons(?h, ?L, ?rest) == append(mc(?h, ?L), ?rest)
+# 
+product(?h::?t, ?L) == map_cons(?h, ?L, product(?t, ?L))
+map_cons(?x, nil, ?L) == ?L
+map_cons(?x, ?h::?t, ?L) == pair(?x, ?h) :: map_cons(?x, ?t, ?L)
+
+swapper(?s1, ?s2, nil) == nil
+swapper(?s1, ?s2, ?se::?slst) == 
+  swapper_se(?s1, ?s2, ?se) :: swapper(?s1, ?s2, ?slst)
+swapper_se(?s1, ?s2, ?s) == ?s
+# swapper_se(?s1, ?s2, nil) == nil
+swapper_se(?s1, ?s2, ?s1) == ?s2
+swapper_se(?s1, ?s2, ?s2) == ?s1
+swapper_se(?s1, ?s2, ?h::?t) == swapper(?s1, ?s2, ?h::?t)
+
+rotate(nil) == nil
+rotate(?h::?t) == last(?h::?t) :: butlast(?h::?t)
+last(?h::?t) == last(?t)
+last(?h::nil) == ?h
+butlast(?h::?t) == ?h :: butlast(?t)
+butlast(?h::nil) == nil
+
+# Exercise 2.2.8
+
+down(nil) == nil
+down(?h::?t) == (?h::nil)::down(?t)
+
+up(nil) == nil
+up(?h::?t) == ?h :: up(?t)
+up(nil::?t) == up(?t)
+up((?hh::?th)::?t) == ?hh :: up(?th::?t)
+
+count_occurrences(?s, nil) == 0
+count_occurrences(?s, ?h::?t) == occur_se(?s, ?h) + count_occurrences(?s, ?t)
+occur_se(?s, ?se) == count_occurrences(?s, ?se)
+occur_se(?s, ?se?symbol) == 0
+occur_se(?s, ?s) == 1
+
+flatten(nil) == nil
+flatten(?h::?t) == append(flatten(?h), flatten(?t))
+flatten(?h?symbol::?t) == ?h :: flatten(?t)
+flatten(nil::?t) == flatten(?t)		# needed because nil is a symbol!
+
+# Exercise 2.2.9
+
+path(?n, bst(?key, ?left, ?right)) ==
+  if ?n = ?key 
+  then nil 
+  else if ?n < ?key 
+  	   then L :: path(?n, ?left)
+  	   else R :: path(?n, ?right)
+
+car_and_cdr(?s, ?slst, ?errvalue) == 
+  (if ?result = failed 
+   then ?errvalue 
+   else lambda(lst, ?result)) 
+  with ?result -> cc_find(?s, ?slst, lst)
+cc_find(?s, nil, ?path) == failed
+cc_find(?s, ?head::?tail, ?path) == 
+  (if ?result != failed 
+   then ?result
+   else cc_find(?s, ?tail, cdr(?path))) 
+  with ?result -> cc_find_se(?s, ?head, car(?path))
+cc_find_se(?s, ?x?symbol, ?path) == 
+  if ?s = ?x then ?path else failed
+cc_find_se(?s, ?x?app, ?path) == cc_find(?s, ?x, ?path)
+
+sort(?list) == repeated_merge(down(?list))
+repeated_merge(nil) == nil
+repeated_merge(?list::nil) == ?list
+repeated_merge(?L1::?L2::?rest) == repeated_merge(merge_pairs(?L1::?L2::?rest))
+merge_pairs(nil) == nil
+merge_pairs(?L1::nil) == ?L1::nil
+merge_pairs(?L1::?L2::?rest) == merge(?L1, ?L2)::merge_pairs(?rest)
+
+merge(nil, ?lon2) == ?lon2
+merge(?lon1, nil) == ?lon1
+merge(?n1::?lon1, ?n2::?lon2) == 
+  if ?n1 <= ?n2 
+  then ?n1 :: merge(?lon1, ?n2::?lon2) 
+  else ?n2 :: merge(?n1::?lon1, ?lon2)
+

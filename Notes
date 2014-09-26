@@ -1,0 +1,343 @@
+Okay, I'm going to catenate all the programs and other stuff into one
+file, so I can control the order of presentation and thereby avoid either
+having to explain everything everywhere, or forcing you to skip around.
+(This is going to be a very long message.)
+
+First, a tutorial I started to write but quickly abandoned (I'm not 
+real big on finishing what I start):
+
+---begin tutor
+1. GETTING STARTED
+
+    Welcome. This tutorial is meant to give you an overview of what req
+can do and how to do it. The name 'req' 
+(pronounced 'wreck', though I hope nobody thinks it reeks) 
+is short for 'recursion equations', which may sound formidable;
+but bear with me. Recursion equations give you a way to solve problems
+with a computer which is free of the bits-and-bytes idiosyncrasies
+of programmer's languages like C and Pascal, and also more expressive
+than spreadsheets.
+
+    To start, type 'req' at the DOS command line. After a moment, you
+should see a greater-than sign ('>') and a blinking cursor; this is req's
+way of asking, 'Your wish, sire?' Let's say your wish is to know what is
+two and two. You type in '2+2' and hit the Enter key, and req answers
+'4' and displays another '>' prompt - meaning it's ready to grant your
+next wish. At this point your screen should look like:
+
+> 2+2
+4
+>
+
+    All our examples will be like this: you type the parts after the '>'
+and req's response is directly below. Continuing with our example, we try
+out distraction, uglification, and derision:
+
+> 10 - 6
+4
+> 3 * 2
+6
+> 3 / 2
+1.5
+
+    More complex expressions:
+
+> 1 + 2 + 3 + 4
+10
+> 3*3 + 4*4
+25
+> 3 * (3 + 4) * 4
+84
+
+    We see that multiplication comes before addition; that is, '1+2*3' is 
+interpreted as '1+(2*3)' rather than '(1+2)*3'.
+
+[maybe I should introduce the ~ operator here]
+
+
+2. UNDER THE HOOD
+
+---end tutor
+(That's the end of that included file.)
+That wasn't tremendously informative, I admit.  The ~ is the unary minus
+operator, which brings up the matter of the syntactical differences from
+Prolog, all of which turn out to be mistakes.  Prolog's syntax is very 
+nice.  I disliked its requirement that you end every command with a period --
+not that I've ever actually tried Prolog.  So I decided that whenever the
+parser reaches a point where it can't extend the current parse without an
+error, that's a complete form.  (A 'form' is an expression, definition, or
+other directive.)  Also, when doing interactive input, it also returns a
+complete form if possible when it reaches the end of a line.  Of course, a
+nasty consequence of that is, you can't just save a transcript of an 
+interactive session, and expect it to get parsed the same way when you load
+it as a file.  In other words, you might have a file containing
+
+    1 + 2
+      * 3
+
+which would get parsed as "1+2*3", but if you typed that interactively
+
+> 1 + 2
+3
+>   * 3
+
+you'd get an error.  An even nastier consequence, which I didn't anticipate,
+is that expressions in files can get parsed in unexpected ways if you allow
+operators to have multiple meanings -- e.g., 1-2 and -1.  Then you'd have
+
+    a == 42
+    -f(?b) == f(-?b)
+
+parsed the same as
+
+    a == 42 - f(?b) == f(-?b)
+
+I 'solved' that problem by making every operator be of only one kind
+(prefix, postfix, or infix).  
+
+While I'm on the subject of syntactic pitfalls, here's another: I didn't
+give signed numbers any special lexical treatment: ~1 isn't the single
+lexical token representing negative one; instead it's the unary minus
+operator applied to the positive integer 1.  That's simpler, and all right
+in most cases, but:
+
+    f(~1) == 42
+
+won't work.  A form like 
+
+    pattern == action
+
+defines a new reduction rule, so that when the interpreter sees -pattern-,
+it replaces it with -action-.  However, the interpreter won't ever see the
+pattern f(~1) because any instance of negative one in the subject expression
+will be represented as the number itself, rather than the combination of the
+~ operator and 1.
+
+Kind of boring, nitpicking stuff, I guess, but I figure you'd rather hear
+about what I've learned from this toy, than have lots of code shoved at you.
+The more general lesson from above syntactical confusion is: even if your
+grammar is perfectly unambiguous, it can still have too much potential for
+accidental ambiguity.  I should have realized that -- I'm pretty slow, too.
+
+Time for a real program, the famous factorial:
+
+factorial(?n) == ?n * factorial(?n - 1)
+factorial(0) == 1
+
+This should be pretty obvious.  The base case of the recursion comes last;
+in general, later definitions override earlier ones, so that it's easy to
+interactively correct your mistakes.  That was probably a mistake, too,
+since people find the reverse order more natural, and I could add an
+undefine capability as another way to do interactive corrections.  This
+'backwards' order is easy to get used to, though -- it's not a big deal.
+
+You probably don't like the syntax of variables, either, and in that I
+must agree -- Prolog's capitalization rule would have been better.  The
+greater readability of that becomes undeniable when the definitions get
+more complex.  I would just fix this, except I'd also have to change the
+type guards.  See, you can also write:
+
+factorial(?n?number) == ?n * factorial(?n - 1)
+factorial(0) == 1
+
+?n?number matches only a number in the subject expression.  I think I should
+do away with type guards entirely and substitute a more powerful sort of 
+guard:
+
+factorial(?n) == ?n * factorial(?n - 1) :- number(?n)
+
+Where number(?n) is, you could have any expression.
+
+It's getting late -- I'm going to have to do this in installments...
+(Hey, what did I say about finishing what I start? :-)
+Let me shove a few programs at you, after all, before I go.  I guess I'll
+describe it further tomorrow night.
+
+declarePostfix(!, 3000)
+?n! == ?n * (?n-1)!
+ 0! == 1
+
+---begin time.req
+# Simple time calculations
+
+declareInfixRL(:, 4000)
+declarePostfix(am, 3000)
+declarePostfix(pm, 3000)
+declarePostfix(in_minutes, 3000)
+declarePostfix(in_seconds, 3000)
+
+?units:?sixtieths == ?units + ?sixtieths / 60
+
+?time am == ?time
+?time pm == ?time + 12:00
+
+?hours in_minutes == ?hours * 60
+?hours in_seconds == ?hours in_minutes * 60
+
+# A timecard entry
+# e.g. day(9, 12:30, 1:30, 6) reduces to 8 (hours)
+day(?from1, ?to1, ?from2, ?to2) == ?to1 - ?from1 + ?to2 - ?from2
+---end time.req
+
+---begin bst.req
+# This is for a friend's data structures class assignment:
+# generate 50 random binary search trees of 100 keys each
+# and compute their average depth.
+# Those who are new to functional programming should find this 
+# simple example instructive.
+
+experiment == estimated_mean(repeat(trial, 50))
+
+trial() == depth(random_bst(100))
+
+random_bst(?n) == insert(random(), random_bst(?n-1))
+random_bst(0) == nil
+
+# Binary search trees
+
+insert(?x, nil) == bst(nil, ?x, nil)
+insert(?x, bst(?L, ?value, ?R)) ==
+  if ?x < ?value
+  then bst(insert(?x, ?L), ?value, ?R)
+  else bst(?L, ?value, insert(?x, ?R))
+
+depth(nil) == 0
+depth(bst(?L, ?value, ?R)) ==
+  1 + max(depth(?L), depth(?R))
+
+# Statistics
+# I have a feeling these formulas aren't quite kosher.
+
+declareInfix(+-, 1000)
+
+estimated_mean(?trials) == mean(?trials) +- expected_error(?trials)
+
+mean(?list) == sum(?list) / length(?list)
+variance(?list) == mean(map(square, ?list)) - square(mean(?list))
+expected_error(?list) == sqrt(variance(?list) / length(?list))
+
+# Misc
+
+repeat(?generator, ?n) == ?generator() :: repeat(?generator, ?n-1)
+repeat(?generator, 0) == nil
+
+sum(nil) == 0
+sum(?head::?tail) == ?head + sum(?tail)
+
+square(?x) == ?x * ?x
+
+---end bst.req
+
+---begin roman.req
+# Roman-numeral conversion 
+# - from _Algorithms in Snobol4_ by James F. Gimpel
+
+roman(?n?number) == 
+  if ?n < 10 
+  then oner(?n)
+  else multiply_by_10(roman(?n div 10)) & oner(?n mod 10)
+
+oner(0) == ''
+oner(1) == 'i'
+oner(2) == 'ii'
+oner(3) == 'iii'
+oner(4) == 'iv'
+oner(5) == 'v'
+oner(6) == 'vi'
+oner(7) == 'vii'
+oner(8) == 'viii'
+oner(9) == 'ix'
+
+multiply_by_10(?s?string) == translit('ivxlcdm', 'xlcdm**', ?s)
+---end roman.req
+
+---begin interval.req
+# Interval arithmetic
+
+# Constructors
+
+declareInfix(--, 3000)
+declareInfix(+-, 3000)
+declareInfix(%%, 3000)
+
+?center +- ?epsilon == (?center - ?epsilon) -- (?center + ?epsilon)
+?center %% ?percent == ?center +- (?center * ?percent / 100)
+
+# Selectors
+
+center(?lo -- ?hi) == (?lo + ?hi) / 2
+width(?lo -- ?hi) == ?hi - ?lo
+percent(?lo -- ?hi) == 100 * width(?lo--?hi) / center(?lo--?hi)
+
+# Operations
+
+(?lo1 -- ?hi1) + (?lo2 -- ?hi2) == (?lo1 + ?lo2) -- (?hi1 + ?hi2)
+(?lo1 -- ?hi1) - (?lo2 -- ?hi2) == (?lo1 - ?lo2) -- (?hi1 - ?hi2)
+
+~(?lo -- ?hi) == (~?hi) -- (~?lo)
+
+(?lo1 -- ?hi1) * (?lo2 -- ?hi2) == 
+   min_and_max(?lo1 * ?lo2, ?lo1 * ?hi2, ?hi1 * ?lo2, ?hi1 * ?hi2)
+   
+?numerator / (?lo -- ?hi) ==
+  if within(0, ?lo -- ?hi)
+  then error('Division by an interval containing zero: ' & unparse(?lo -- ?hi))
+  else ?numerator * ((1 / ?hi) -- (1 / ?lo))
+
+min_and_max(?a, ?b, ?c, ?d) == 
+  min(min(?a, ?b), min(?c, ?d)) -- max(max(?a, ?b), max(?c, ?d))
+  
+within(?n, ?lo -- ?hi) == ?lo <= ?n and ?n <= ?hi
+---end interval.req
+
+This file, if present, gets loaded at program startup:
+---begin req.ini
+declareInfix(==, 50)
+declareInfix(:=, 50)
+declareInfixRL(with, 100)
+declareInfix(->, 110)
+declarePrefix(if, 199)
+declareInfix(then, 200)
+declareInfix(else, 202)
+declareInfix(;, 320)
+declareInfixRL(::, 700)
+declareInfix(or, 800)
+declareInfix(and, 900)
+declarePrefix(not, 1000)
+declareInfix(<, 1200)
+declareInfix(<=, 1200)
+declareInfix(=, 1200)
+declareInfix(!=, 1200)
+declareInfix(>=, 1200)
+declareInfix(>, 1200)
+declareInfix(eq, 1200)
+declareInfix(&, 1400)
+declareInfix(+, 1400)
+declareInfix(-, 1400)
+declarePrefix(~, 3000)
+declareInfix(*, 1600)
+declareInfix(/, 1600)
+declareInfix(div, 1600)
+declareInfix(mod, 1600)
+declareInfixRL(^, 1800)
+declareInfix(sub, 2000)
+
+# Misc useful definitions
+
+max(?x, ?y) == if ?x < ?y then ?y else ?x
+min(?x, ?y) == if ?x > ?y then ?y else ?x
+
+length(nil) == 0
+length(?head::?tail) == 1 + length(?tail)
+
+map(?f, nil) == nil
+map(?f, ?head::?tail) == ?f(?head) :: map(?f, ?tail)
+
+letters == 'abcdefghijklmnopqrstuvwxyz'
+LETTERS == 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+
+toupper(?s?string) == translit(letters, LETTERS, ?s)
+tolower(?s?string) == translit(LETTERS, letters, ?s)
+
+pi := 4 * arctan(1)
+---end req.ini

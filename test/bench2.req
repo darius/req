@@ -1,0 +1,2 @@
+loop(?n) == if ?n = 0 then 1 else loop(?n - 1)
+loop(100000)

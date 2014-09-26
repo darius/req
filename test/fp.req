@@ -1,0 +1,85 @@
+# FP interpreter
+
+# --- Syntax ---
+
+# !constant
+# insert f
+# each f
+# filter f
+# f | g
+# f @ g @@ h   like  [f, g, h]
+# f -> g; h
+
+# x: f
+
+declarePrefix(!, 3000)
+declarePrefix(insert, 3000)
+declarePrefix(each, 3000)
+declarePrefix(filter, 3000)
+declareInfix(|, 2000)
+declareInfixRL(@, 1900)
+declareInfixRL(@@, 1900)
+declareInfixRL(->, 1800)
+declareInfixRL(;, 1800)		# this conflicts with req.ini
+
+declareInfix(:, 1000)
+
+# --- PFOs ---
+
+?x: ?f == apply_prim(?f, ?x)
+?x: ?n?number == nth(?n, ?x)
+?x: !?constant == ?constant
+?x: ?f | ?g == (?x: ?f): ?g
+?x: ?f -> ?g; ?h == if ?x:?f then ?x:?g else ?x:?h
+?x: ?f @ ?g == (?x:?f) :: (?x:?g)
+?x: ?f @@ ?g == (?x:?f) :: (?x:?g) :: nil
+
+nil: each ?f == nil
+(?h::?t): each ?f == (?h:?f) :: (?t: each ?f)
+
+nil: filter ?f == nil
+(?h::?t): filter ?f == if ?h:?f
+		       then ?h :: (?t: filter ?f)
+		       else ?t: filter ?f
+
+(?h::?t): insert ?f == (?h :: (?t: insert ?f)): ?f
+(?h::nil): insert ?f == ?h
+
+# --- Primitive operations ---
+
+apply_prim(null, ?x) == 0
+apply_prim(null, nil) == 1
+
+apply_prim(tail, ?h::?t) == ?t
+
+apply_prim(id, ?x) == ?x
+
+apply_prim(distr, nil::?x::nil) == nil
+apply_prim(distr, (?h::?t)::?x::nil) == 
+  (?h::?x::nil) :: apply_prim(distr, ?t::?x::nil)
+
+apply_prim(catenate, nil) == nil
+apply_prim(catenate, ?h::?t) == append(?h, apply_prim(catenate, ?t))
+
+apply_prim(<, ?x::?y::nil) == ?x < ?y
+apply_prim(=, ?x::?y::nil) == ?x = ?y
+apply_prim(>, ?x::?y::nil) == ?x > ?y
+
+# --- Help functions ---
+
+nth(?n, ?h::?t) == nth(?n-1, ?t)
+nth(0, ?h::?t) == ?h
+
+# --- Sample program ---
+
+?x: sort == 
+  ?x: (
+	null -> id;
+	tail | null -> id;
+	(id @@ 1) | distr 
+	| (
+	     filter <  | each 1 | sort
+	   @ filter =  | each 1
+	  @@ filter >  | each 1 | sort
+	  ) | catenate
+  )
