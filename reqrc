@@ -80,7 +80,7 @@ declareUnit(cm)		?n cm   == ?n centi meter
 declareUnit(mm)		?n mm   == ?n milli meter
 declareUnit(micron)	?n micron == ?n micro meter
 declareUnit(nm)		?n nm   == ?n nano meter
-declareUnit(angstrom)	?n nm   == ?n * 10 ^ ~10 meter
+declareUnit(angstrom)	?n angstrom == ?n * 10 ^ ~10 meter
 declareUnit(inch)	?n inch == ?n * 2.54 cm
 declareUnit(foot)	?n foot == ?n * 12 inch
 declareUnit(yard)	?n yard == ?n * 3 foot
