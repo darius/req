@@ -74,39 +74,39 @@ declareUnit(femto)	?n femto == ?n * 10 ^ ~15
 declareUnit(atto)	?n atto  == ?n * 10 ^ ~18
 
 # length
-declareUnit(meter)	?n meter == ?n		# ref unit for length
-declareUnit(km)		?n km   == ?n kilo meter
-declareUnit(cm)		?n cm   == ?n centi meter
-declareUnit(mm)		?n mm   == ?n milli meter
+declareUnit(meter)	?n meter  == ?n		# ref unit for length
+declareUnit(km)		?n km     == ?n kilo meter
+declareUnit(cm)		?n cm     == ?n centi meter
+declareUnit(mm)		?n mm     == ?n milli meter
 declareUnit(micron)	?n micron == ?n micro meter
-declareUnit(nm)		?n nm   == ?n nano meter
+declareUnit(nm)		?n nm     == ?n nano meter
 declareUnit(angstrom)	?n angstrom == ?n * 10 ^ ~10 meter
-declareUnit(inch)	?n inch == ?n * 2.54 cm
-declareUnit(foot)	?n foot == ?n * 12 inch
-declareUnit(yard)	?n yard == ?n * 3 foot
-declareUnit(mile)	?n mile == ?n * 5280 foot
-declareUnit(AU)		?n AU   == ?n * 1.495 * 10^11 meter  # astronomical unit
+declareUnit(inch)	?n inch   == ?n * 2.54 cm
+declareUnit(foot)	?n foot   == ?n * 12 inch
+declareUnit(yard)	?n yard   == ?n * 3 foot
+declareUnit(mile)	?n mile   == ?n * 5280 foot
+declareUnit(AU)		?n AU     == ?n * 1.495 * 10^11 meter  # astronomical unit
 declareUnit(parsec)	?n parsec == ?n * 3.084 * 10^16 meter
 
 # time
 declareUnit(second)	?n second == ?n		# ref for time
 declareUnit(sec)	?n sec    == ?n second
-declareUnit(msec)	?n msec    == ?n milli second
-declareUnit(nsec)	?n nsec    == ?n nano second
+declareUnit(msec)	?n msec   == ?n milli second
+declareUnit(nsec)	?n nsec   == ?n nano second
 declareUnit(minute)	?n minute == ?n * 60 second
 declareUnit(hour)	?n hour   == ?n * 60 minute
 declareUnit(day)	?n day    == ?n * 24 hour
 declareUnit(year)	?n year   == ?n * 365.2422 day
 
 # mass
-declareUnit(kg)		?n kg    == ?n  	# ref for mass
-declareUnit(gram)	?n gram  == (?n / 1000) kg
-declareUnit(tonne) 	?n tonne == ?n kilo kg
-declareUnit(pound) 	?n pound == (?n / 2.22) kg
-declareUnit(lb) 	?n lb    == ?n pound
-declareUnit(ton) 	?n ton   == ?n * 2000 pound  # I think...
-declareUnit(ounce) 	?n ounce == (?n / 16) pound  # I guess...
-declareUnit(oz) 	?n oz    == ?n ounce
+declareUnit(kg)		?n kg     == ?n  	# ref for mass
+declareUnit(gram)	?n gram   == (?n / 1000) kg
+declareUnit(tonne) 	?n tonne  == ?n kilo kg
+declareUnit(pound) 	?n pound  == (?n / 2.22) kg
+declareUnit(lb) 	?n lb     == ?n pound
+declareUnit(ton) 	?n ton    == ?n * 2000 pound  # I think...
+declareUnit(ounce) 	?n ounce  == (?n / 16) pound  # I guess...
+declareUnit(oz) 	?n oz     == ?n ounce
 
 # angle
 declareUnit(radian)     ?n radian == ?n
@@ -148,7 +148,7 @@ h    := hbar * 2 * pi
 k_B      := 1.3806 * 10 ^ ~23 joule  # per degree K
 
 amu      := 1.6605 * 10 ^ ~27 kg     # atomic mass unit
-avogadro := 6.0221 * 10^23         # per mole
+avogadro := 6.0221 * 10^23           # per mole
 
 M_proton   := 1.6726 * 10 ^ ~27 kg
 M_electron := 9.1094 * 10 ^ ~31 kg
