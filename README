@@ -66,8 +66,8 @@ math support, I started feeling slowed down by C's low level,
 especially for debugging. Lisp turned out to answer much better, and
 that was the end of active development of req.
 
-The program was complete enough to be useful to me, however. Besides
-for physical calculations, for playing with some ideas the symbolic
-manipulation stuff could be handy.
+The program was complete enough though to be useful to me for physical
+calculations, and occasionally handy for the symbolic manipulation
+stuff. It's nice to have a tool you understand completely.
 
 I think I posted this code to alt.sources in the 90s.
