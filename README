@@ -49,8 +49,8 @@ In school I took an unusual intro class on algorithms and data
 structures from Dave Gillespie, the author of GNU Calc. The
 assignments built on each other to develop a basic Mathematica-style
 symbolic math program, in Pascal. (Mathematica did not exist yet --
-rather, Gillespie was influenced by Wolfram's first system, called
-[SMP](https://en.wikipedia.org/wiki/SMP_(computer_algebra_system)).)
+rather, Gillespie was influenced by Wolfram's first system,
+https://en.wikipedia.org/wiki/SMP_(computer_algebra_system).)
 It was a fun course -- I think any loss of core subject focus for the
 symbolic math stuff was outweighed by the interest and realism of the
 project. Project courses don't have to be limited to compilers and
