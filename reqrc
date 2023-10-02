@@ -163,5 +163,6 @@ R_earth := 3960 mile
 M_earth := 5.98 * 10^24 kg
 R_sun   := 6.953 * 10^8 meter
 M_sun   := 1.983 * 10^30 kg
+R_moon  := 1737.4 km
 
 g_earth := 9.80665 meter / (1 sec)^2
