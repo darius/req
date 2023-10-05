@@ -47,6 +47,7 @@ toupper(?s?string) == translit(letters, LETTERS, ?s)
 tolower(?s?string) == translit(LETTERS, letters, ?s)
 
 pi := 4 * arctan(1)
+tau := 8 * arctan(1)
 
 ?n?number ! == ?n * (?n-1)!
         0 ! == 1
